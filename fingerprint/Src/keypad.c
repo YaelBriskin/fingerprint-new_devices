@@ -25,12 +25,22 @@ Status_t keypad_init()
     for (int i = 0; i < NUM_ROWS; i++)
     {
         if (GPIO_init(rowPins[i], "in") == FAILED)
+        {
+            char logMsg[256];
+            snprintf(logMsg, sizeof(logMsg), "Failed to read row pin %d\n", rowPins[i]);
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);
             return FAILED;
+        }
     }
     for (int j = 0; j < NUM_COLS; j++)
     {
         if (GPIO_init(colPins[j], "out") == FAILED)
+        {    
+            char logMsg[256];        
+            snprintf(logMsg, sizeof(logMsg), "Failed to read column pin %d\n", colPins[j]);
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);
             return FAILED;
+        }
     }
     return SUCCESS;
 }
@@ -195,7 +205,9 @@ char read_keypad_value()
     {
         if (GPIO_write(colPins[j], HIGH) == FAILED)
         {
-            LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Failed to set column high", strerror(errno));
+            char logMsg[256];
+            snprintf(logMsg, sizeof(logMsg), "Failed to set column pin %d high. Error: %s", colPins[j], strerror(errno));
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);
             return '\0';
         }
     }
@@ -205,7 +217,9 @@ char read_keypad_value()
         // Set current column to LOW
         if (GPIO_write(colPins[j], LOW) == FAILED)
         {
-            LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Failed to set column low", strerror(errno));
+            char logMsg[256];
+            snprintf(logMsg, sizeof(logMsg), "Failed to set column pin %d low. Error: %s", colPins[j], strerror(errno));
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);            
             return '\0';
         }
 
@@ -215,7 +229,6 @@ char read_keypad_value()
             int value = GPIO_read(rowPins[i]);
             if (value == 0) // Button pressed
             {
-                printf("%c\n",keys[i][j]);
                 GPIO_write(colPins[j], HIGH);
                 return keys[i][j];
             }

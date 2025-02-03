@@ -25,11 +25,11 @@
 #define LED_ON 1
 #define LED_OFF 0
 #define SLEEP_BUZZER 500000
-#define BUZZER_ON 1
-#define BUZZER_OFF 0
+#define BUZZER_ON 0
+#define BUZZER_OFF 1
 #define LOCK 1
 #define UNLOCK 0
-#define SLEEP_LCD 3
+#define SLEEP_LCD 2
 #define SLEEP_DURATION 4
 #define ONE_MINUTE 60 
 #define MONTH 2
@@ -42,7 +42,8 @@
 #define OUT "out"
 #define HELLO "Hello"
 #define GOODBYE "Goodbye"
-#define DELAY 10000
+#define DELAY 5000
+#define DELAY_LONG 20000
 #define TIME_STR_LEN 20
 
 #define MESSAGE_LEN 50
@@ -57,8 +58,9 @@
 #define MAX_LENGTH_ID 3
 #define MAX_FINGERPRINT 100
 
-#define CONFIG_NAME "/home/debian/fingerprint/config.conf"
-#define DATABASE_NAME "/home/debian/fingerprint/employee_attendance.db"
+#define CONFIG_FILE "config.conf"
+
+//#define CONFIG_NAME "/home/pi/fingerprint_raspberry_pi/fingerprint/config.conf"
 #define FILE_NAME "URL.txt"
 
 typedef enum {

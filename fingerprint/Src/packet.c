@@ -293,19 +293,18 @@ void SendToUart(fingerprintPacket *packet)
 	uint16_t Size = MIN_SIZE_PACKET + (packet->length);
 	uint16_t i = 0;
 	uint8_t packetData[Size];
-
 	packetData[i++] = (uint8_t)((packet->start_code) >> 8);
 	packetData[i++] = (uint8_t)((packet->start_code) & 0xFF);
 
-	packetData[i++] = packet->address[0];
-	packetData[i++] = packet->address[1];
-	packetData[i++] = packet->address[2];
-	packetData[i++] = packet->address[3];
+    // Заполнение адреса
+    for (int j = 0; j < 4; j++) 
+        packetData[i++] = packet->address[j];
 
 	packetData[i++] = packet->type;
 
 	packetData[i++] = (uint8_t)((packet->length) >> 8);
 	packetData[i++] = (uint8_t)((packet->length) & 0xFF);
+
 	uint16_t Sum = ((packet->length) >> 8) + ((packet->length) & 0xFF) + packet->type;
 
 	for (int j = 0; j < packet->length - 2; j++)
@@ -331,6 +330,7 @@ uint8_t GetFromUart(fingerprintPacket *packet)
 	uint8_t idx = 0;
 	uint16_t length = 0;
 	int chkSum;
+
 	SendToUart(packet);
 	usleep(DELAY);
 	// Check the first data read

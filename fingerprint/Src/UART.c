@@ -1,5 +1,7 @@
 #include "../Inc/UART.h"
 
+
+int timeout_ms = 60000; // Тайм-аут 60 секунд
 /**
  * @brief Initializes the UART interface.
  *
@@ -91,31 +93,43 @@ void UART_write(int uart_fd, const char *data, int size)
  */
 Status_t UART_read(int uart_fd, char *buffer, int size)
 {
+    static bool read_error_logged = false;
     int retries_UART_read = 0;
+    
     while (retries_UART_read < g_max_retries)
     {
-        int bytes_read = read(uart_fd, buffer, size);
+        int bytes_read = 0;
+        while (bytes_read < size) // Пытаемся прочитать весь пакет
+        {
+            int ret = read(uart_fd, buffer + bytes_read, size - bytes_read);
+            if (ret < 0)
+            {
+                // Логируем ошибку, если не удалось прочитать
+                LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Error reading from UART", strerror(errno));
+                return FAILED;
+            }
+            bytes_read += ret;
+        }
+        // Если все байты были прочитаны
         if (bytes_read == size)
-        {
             return SUCCESS;
-        }
-        else if (bytes_read == 0)
-        {
-            // Log a message if the UART input buffer is empty
-            LOG_MESSAGE(LOG_ERR, __func__, "stderr", "UART input buffer is empty.", NULL);
-            break;
-        }
         else
         {
-            // Log an error if reading from UART fails
-            LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Error reading from UART", strerror(errno));
+            // Логируем ошибку, если получено меньше байтов, чем ожидалось
+            if (!read_error_logged)
+            {
+                char log_message[MAX_LOG_MESSAGE_LENGTH];
+                snprintf(log_message, MAX_LOG_MESSAGE_LENGTH, "Error: Expected %d bytes, got %d bytes", size, bytes_read);
+                LOG_MESSAGE(LOG_ERR, __func__, "stderr", log_message, NULL);
+                read_error_logged = true;
+            }
             retries_UART_read++;
-            usleep(DELAY);
+            usleep(DELAY_LONG);
         }
     }
+    // Если максимальное количество попыток превышено
     if (retries_UART_read == g_max_retries)
     {
-        // Log and print an error if maximum retries are reached
         LOG_MESSAGE(LOG_ERR, __func__, "stderr", "Error: Maximum retries reached", NULL);
         return FAILED;
     }

@@ -30,7 +30,6 @@ void lcd16x2_i2c_print(uint8_t row, uint8_t col, const char *message);
 void lcd16x2_i2c_display(bool state);
 void lcd16x2_i2c_shiftRight(uint8_t offset);
 void lcd16x2_i2c_shiftLeft(uint8_t offset);
-void lcd16x2_i2c_printf(const char* str, ...);
 void lcd16x2_i2c_puts(uint8_t x, uint8_t y, const char* str);
 void displayMessage(const char *func_name,const char *message);
 int wordLength(const char *str);

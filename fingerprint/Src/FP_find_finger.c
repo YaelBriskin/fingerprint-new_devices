@@ -49,13 +49,13 @@ int findFinger(const char *message)
 {
 	lcd16x2_i2c_clear();
 	struct timespec start_time;
-	const int max_execution_time = 10;
+	const int max_execution_time = 20;
 	struct timespec current_time;
 	char num[2] = {0};
 	int ack = -1;
 	int previous_ack = -1;
-	lcd16x2_i2c_puts(1, 0, "Waiting finger to enroll");
-	sleep(SLEEP_LCD);
+	lcd16x2_i2c_puts(0, 0, "Waiting finger to enroll");
+	sleep(SLEEP_LCD);	
 	clock_gettime(CLOCK_MONOTONIC, &start_time);
 
 	// Main loop for scanning the fingerprint
@@ -75,8 +75,7 @@ int findFinger(const char *message)
 		{
 			// Handle different response codes
 			switch (ack)
-			{
-
+			{	
 			case FINGERPRINT_OK:
 				displayMessage(__func__,"Finger collection success");
 				break;
@@ -87,6 +86,8 @@ int findFinger(const char *message)
 				displayMessage(__func__,"Fail to collect finger");
 				break;
 			case FINGERPRINT_PACKETRECIEVER:
+				displayMessage(__func__,"Communication error");
+				break;
 			default:
 				displayMessage(__func__,"Error receiving package");
 				break;
@@ -95,8 +96,8 @@ int findFinger(const char *message)
 		}
 		usleep(DELAY);
 	}
-	// to generate character file from the original finger image in ImageBuffer and store the file in CharBuffer1 or CharBuffer2.
 	lcd16x2_i2c_clear();
+	// to generate character file from the original finger image in ImageBuffer and store the file in CharBuffer1 or CharBuffer2.
 	// Convert image to template
 	ack = image2Tz(1);
 	// Handle different response codes
@@ -124,7 +125,6 @@ int findFinger(const char *message)
 		return FAILED;
 	// Search for fingerprint in database
 	ack = fingerFastSearch();
-	printf("ack = %d\n",ack);
 	// Handle different response codes
 	switch (ack)
 	{
@@ -135,7 +135,7 @@ int findFinger(const char *message)
 		displayMessage(__func__,mydata);
 		return stringToInt(num); // Return fingerprint ID
 	case FINGERPRINT_PACKETRECIEVER:
-		displayMessage(__func__,"Error receiving package");;
+		displayMessage(__func__,"Error receiving package");
 		break;
 	case FINGERPRINT_NOTFOUND:
 		return ERROR;

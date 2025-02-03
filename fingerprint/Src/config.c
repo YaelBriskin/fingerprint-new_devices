@@ -28,7 +28,22 @@ char g_database_path[MAX_PATH_LENGTH];
  */
 Status_t read_config(Config_t *config) 
 {
-    FILE *file = fopen(CONFIG_NAME, "r");
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) 
+    {
+        LOG_MESSAGE(LOG_ERR, __func__, "strerror","getcwd() error", strerror(errno));
+        return FAILED;
+    } 
+
+    // Формируем полный путь к файлу конфигурации
+    if (cwd[strlen(cwd) - 1] != '/') 
+    {
+        snprintf(cwd + strlen(cwd), sizeof(cwd) - strlen(cwd), "/%s", CONFIG_FILE);
+    } else {
+        snprintf(cwd, sizeof(cwd), "%s%s", cwd, CONFIG_FILE);
+    }
+
+    FILE *file = fopen(cwd, "r");
     if (!file) 
     {
         LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Could not open config file", strerror(errno));

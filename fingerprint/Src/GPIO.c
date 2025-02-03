@@ -14,28 +14,33 @@ GPIO_Manager gpio_manager = {0};
  */
 Status_t GPIO_init(int pinNumber, const char* direction)
 {
+    // Открываем GPIO-чип
     if (!gpio_manager.chip) 
     {
         gpio_manager.chip = gpiod_chip_open_by_name("gpiochip0");
         if (!gpio_manager.chip) 
         {
-            fprintf(stderr, "Failed to open GPIO chip: %s\n", strerror(errno));
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", "Failed to open GPIO chip", strerror(errno));
             return FAILED;
         }
     }
-
+    // Получаем линию GPIO
     struct gpiod_line *line = gpiod_chip_get_line(gpio_manager.chip, pinNumber);
     if (!line) 
     {
-        fprintf(stderr, "Failed to get GPIO line: %s\n", strerror(errno));
+        char logMsg[256];
+        snprintf(logMsg, sizeof(logMsg), "Failed to get GPIO line for pin %d. Error: %s", pinNumber, strerror(errno));
+        LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL); 
         return FAILED;
     }
-
+    // Устанавливаем направление
     if (strcmp(direction, "out") == 0) 
     {
         if (gpiod_line_request_output(line, "gpio_controller", 0) != 0) 
         {
-            fprintf(stderr, "Failed to request GPIO line as output: %s\n", strerror(errno));
+            char logMsg[256];
+            snprintf(logMsg, sizeof(logMsg), "Failed to request GPIO line  %d as output. Error: %s", pinNumber, strerror(errno));
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL); 
             return FAILED;
         }
     } 
@@ -43,13 +48,15 @@ Status_t GPIO_init(int pinNumber, const char* direction)
     {
         if (gpiod_line_request_input(line, "gpio_controller") != 0) 
         {
-            fprintf(stderr, "Failed to request GPIO line as input: %s\n", strerror(errno));
+            char logMsg[256];
+            snprintf(logMsg, sizeof(logMsg), "Failed to request GPIO line  %d as input. Error: %s", pinNumber, strerror(errno));
+            LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL); 
             return FAILED;
         }
     } 
     else 
     {
-        fprintf(stderr, "Invalid GPIO direction: Expected 'in' or 'out'\n");
+        LOG_MESSAGE(LOG_ERR, __func__, "stderr", "Invalid GPIO direction: Expected 'in' or 'out'", NULL);
         return FAILED;
     }
 
@@ -69,7 +76,9 @@ int GPIO_read(int pinNumber)
     struct gpiod_line *line = gpio_manager.lines[pinNumber];
     if (!line) 
     {
-        fprintf(stderr, "GPIO line not initialized. Call GPIO_init first.\n");
+        char logMsg[256];
+        snprintf(logMsg, sizeof(logMsg), "GPIO line not initialized for pin %d. Call GPIO_init first.", pinNumber);
+        LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);        
         return -1;
     }
     return gpiod_line_get_value(line);
@@ -82,13 +91,28 @@ int GPIO_read(int pinNumber)
  */
 Status_t GPIO_write(int pinNumber, int value) 
 {
+    // Проверка, что линия была инициализирована для данного пина
     struct gpiod_line *line = gpio_manager.lines[pinNumber];
     if (!line) 
-    {
-        fprintf(stderr, "GPIO line not initialized. Call GPIO_init first.\n");
+    {   
+        char logMsg[256];   
+        snprintf(logMsg, sizeof(logMsg), "GPIO line not initialized for pin %d. Call GPIO_init first.", pinNumber);
+        LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);
         return FAILED;
     }
-    return gpiod_line_set_value(line, value) == 0 ? SUCCESS : FAILED;
+
+    // Попытка установить значение на линии
+    int result = gpiod_line_set_value(line, value);
+    if (result != 0) 
+    {
+        char logMsg[256];        
+        snprintf(logMsg, sizeof(logMsg), "Failed to set GPIO value for pin %d. Error: %s", pinNumber, strerror(errno));
+        LOG_MESSAGE(LOG_ERR, __func__, "stderr", logMsg, NULL);
+        return FAILED;
+    }
+
+    // Если все прошло успешно
+    return SUCCESS;
 }
 /**
  * @brief Releases all resources associated with the GPIO manager.

@@ -486,8 +486,9 @@ int process_response(const char *response)
     int id_count = cJSON_GetArraySize(json);
     if (id_count == 0)
     {
-        writeToFile(file_URL, __func__, "No IDs to delete in the response");
-        LOG_MESSAGE(LOG_DEBUG, __func__, "stderr", "No IDs to delete in the response", NULL);
+        snprintf(log_message, MAX_LOG_MESSAGE_LENGTH, "No IDs to delete in the response. JSON array size: %d", id_count);
+        writeToFile(file_URL, __func__, log_message);
+        LOG_MESSAGE(LOG_DEBUG, __func__, "stderr", log_message, NULL);
     }
     for (int i = 0; i < id_count; ++i)
     {

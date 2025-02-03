@@ -446,7 +446,12 @@ int main()
     LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Failed to turn off GPIO LED_RED", strerror(errno));
     return FAILED;
   }
-
+  // Turn off BUZZER
+  if (GPIO_write(GPIO_BUZZER, BUZZER_OFF) != SUCCESS)
+  {
+    LOG_MESSAGE(LOG_ERR, __func__, "strerror", "Failed to turn off GPIO LED_RED", strerror(errno));
+    return FAILED;
+  }
   // Initialize the file using the name from the configuration
   initFile(&file_URL, FILE_NAME);
 

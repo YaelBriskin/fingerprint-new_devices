@@ -12,6 +12,7 @@
 #include "curl_client.h"
 #include "I2C.h"
 #include "UART.h"
+#include "GPIO.h"
 #include "syslog_util.h"
 #include "file_utils.h"
 

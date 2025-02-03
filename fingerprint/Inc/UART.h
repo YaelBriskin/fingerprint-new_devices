@@ -13,6 +13,8 @@
 #include "syslog_util.h"
 #include "defines.h"
 #include "config.h"
+#include <time.h>
+#include <stdbool.h> 
 
 #define FPM_DEVICE   "/dev/ttyS0"
 #define FPM_BaudRate      B57600

@@ -105,6 +105,7 @@ void handle_sigint(int sig)
     DB_close();
     UART_close(fpm_fd);
     I2C_close();
+    GPIO_close();
     closeFile(file_URL);
 
     // Close syslog last

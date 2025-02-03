@@ -1,6 +1,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 
+#include <gpiod.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -22,7 +23,7 @@
 #define GPIO_PIN_COL2 27  //pin 13
 #define GPIO_PIN_COL3 22  //pin 15
 
-#define GPIO_COUNT 9
+#define GPIO_COUNT 53
 
 Status_t GPIO_init(int pinNumber, const char* direction);
 int GPIO_read(int pinNumber);
