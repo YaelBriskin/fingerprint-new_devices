@@ -4,6 +4,11 @@
 
 This project represents a fingerprint-based access control system. It uses fingerprint sensors, GPIO for managing buttons and LEDs, and interacts with a database and external services via cURL.
 
+## Configure your Raspberry Pi
+```bash
+sudo raspi-config
+```
+
 ## Configuring Your Computer's Network for Communication with BeagleBone
 
 1. **Check Current Network Interfaces:**
