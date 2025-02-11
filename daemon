@@ -1,0 +1,61 @@
+to create daemon in Linux to .exe file
+
+fingerprint this name of my .exe file
+~~~~~~~~~~~~~~~~~~~~~~
+cd build/out/
+cp fingerprint /bin
+
+sudo nano /etc/systemd/system/fingerprint.service
+
+[Unit]
+Description= fpm
+After=networking.service
+Requires=networking.service
+
+[Service]
+ExecStart=/bin/fingerprint
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
+~~~~~~~~~~~~~~~~~~~~~~~
+sudo systemctl daemon-reload
+
+sudo su
+systemctl start fingerprint
+systemctl enable fingerprint
+systemctl status fingerprint
+
+systemctl start networking
+systemctl enable networking
+systemctl status networking
+---------------
+systemctl stop fingerprint
+systemctl stop networking
+systemctl disable fingerprint
+
+sudo systemctl daemon-reload
+
+sudo reboot
+
+-------------------------------------------------------
+sudo nano /etc/systemd/system/networking.service
+-------------------------
+
+[Unit]
+Description=Networking Daemon for WiFi
+After=network.target
+Wants=network-online.target
+Before=fingerprint.service
+
+[Service]
+ExecStart=/home/pi/fingerprint_raspberry_pi/fingerprint/networking/networking
+Restart=on-failure
+User=root
+Group=root
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
